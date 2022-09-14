@@ -16,7 +16,7 @@ class TasksTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadTasks()
-    
+        title = "Tasks"
         let add = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,

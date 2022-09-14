@@ -32,6 +32,13 @@ class TasksListsTableViewController: UITableViewController {
         navigationItem.setRightBarButtonItems([addButton, editButtonItem], animated: true)
     }
     
+    // MARK: - ViewWillAppear
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(false)
+        segmentAction(segmentControlOutlet)
+    }
+    
     // MARK: - Private
     
     @objc private func alertAddOrUpdateListSelector() {
@@ -62,6 +69,7 @@ class TasksListsTableViewController: UITableViewController {
             guard
                 let textField = alertTextField,
                 let text = textField.text,
+                !text.isEmpty,
                 let self = self
             else {
                 return
@@ -84,7 +92,7 @@ class TasksListsTableViewController: UITableViewController {
             }
             textField.placeholder = "tasks list"
         }
-        
+
         alert.addAction(action)
         alert.addAction(cancel)
         
@@ -92,7 +100,7 @@ class TasksListsTableViewController: UITableViewController {
     }
     
     // MARK: - IBActions
-    @IBAction func segmentAction(_ sender: UISegmentedControl) {
+    @IBAction private func segmentAction(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0 {
             tasksLists = StorageManager.getAllTasksLists().sorted(byKeyPath: "name")
         } else {
@@ -120,7 +128,7 @@ class TasksListsTableViewController: UITableViewController {
         
         cell.textLabel?.text = list.name
         cell.accessoryType = notDoneTasks >= 1 ? .none : .checkmark
-        cell.detailTextLabel?.text = notDoneTasks.description
+        cell.detailTextLabel?.text = notDoneTasks >= 1 ? notDoneTasks.description : ""
 
         return cell
     }
@@ -167,14 +175,14 @@ class TasksListsTableViewController: UITableViewController {
         return swipe
     }
 
-    /*
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if
+            let tasksTVC = segue.destination as? TasksTableViewController,
+            let indexPath = tableView.indexPathForSelectedRow
+        {
+            tasksTVC.taskList = tasksLists[indexPath.row]
+        }
     }
-    */
-
 }

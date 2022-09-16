@@ -215,6 +215,20 @@ class TasksTableViewController: UITableViewController {
         return section == 0 ? "Not completed tasks" : "Completed tasks"
     }
     
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if sourceIndexPath.section != destinationIndexPath.section {
+            let task = sourceIndexPath.section == 0
+                ? notCompletedTasks[sourceIndexPath.row]
+                : completedTasks[sourceIndexPath.row]
+            StorageManager.makeDone(task)
+            tableView.reloadData()
+        }
+    }
+    
     // MARK: Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

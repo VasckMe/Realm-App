@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1807CDBE28D47CFD009A9F69 /* DetailTaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1807CDBD28D47CFD009A9F69 /* DetailTaskViewController.swift */; };
 		184DC10928D07B51002C0021 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184DC10828D07B51002C0021 /* AppDelegate.swift */; };
 		184DC10B28D07B51002C0021 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184DC10A28D07B51002C0021 /* SceneDelegate.swift */; };
 		184DC11028D07B51002C0021 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 184DC10E28D07B51002C0021 /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1807CDBD28D47CFD009A9F69 /* DetailTaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTaskViewController.swift; sourceTree = "<group>"; };
 		184DC10528D07B51002C0021 /* Realm App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Realm App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		184DC10828D07B51002C0021 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		184DC10A28D07B51002C0021 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			children = (
 				184DC12928D08AA1002C0021 /* TasksListsTableViewController.swift */,
 				184DC12B28D08AAF002C0021 /* TasksTableViewController.swift */,
+				1807CDBD28D47CFD009A9F69 /* DetailTaskViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				184DC12E28D0E0CD002C0021 /* TasksList.swift in Sources */,
+				1807CDBE28D47CFD009A9F69 /* DetailTaskViewController.swift in Sources */,
 				18EA8D0128D0E4BF00F22DAA /* StorageManager.swift in Sources */,
 				184DC10928D07B51002C0021 /* AppDelegate.swift in Sources */,
 				184DC12C28D08AAF002C0021 /* TasksTableViewController.swift in Sources */,

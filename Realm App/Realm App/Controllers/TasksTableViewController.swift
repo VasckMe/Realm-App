@@ -8,10 +8,18 @@
 import UIKit
 import RealmSwift
 
+protocol UpdateTask {
+    func updateTask()
+}
+
 class TasksTableViewController: UITableViewController {
 
     var taskList: TasksList?
-    var tasks: List<Task>?
+    
+    var notCompletedTasks: Results<Task>!
+    var completedTasks: Results<Task>!
+    
+//    var tasks: Results<Task>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,26 +106,29 @@ class TasksTableViewController: UITableViewController {
     
     private func loadTasks() {
         if let list = taskList {
-            tasks = list.tasks
+            notCompletedTasks = list.tasks.filter("isComplete = false")
+            completedTasks = list.tasks.filter("isComplete = true")
         }
         tableView.reloadData()
     }
     
     // MARK: - Table view data source
 
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let tasks = tasks else {
-            return 0
-        }
-        return tasks.count
+        return section == 0 ? notCompletedTasks.count : completedTasks.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        guard let tasks = tasks else {
-            return UITableViewCell()
-        }
-        let task = tasks[indexPath.row]
+        
+        let task = indexPath.section == 0
+        ? notCompletedTasks[indexPath.row]
+        : completedTasks[indexPath.row]
+        
         cell.textLabel?.text = task.name
         cell.detailTextLabel?.text = task.note
         cell.accessoryType = task.isComplete ? .checkmark : .none
@@ -129,12 +140,14 @@ class TasksTableViewController: UITableViewController {
         return true
     }
     
-    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        guard let tasks = tasks else {
-            return nil
-        }
+    override func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
         
-        let currentTask = tasks[indexPath.row]
+        let currentTask = indexPath.section == 0
+        ? notCompletedTasks[indexPath.row]
+        : completedTasks[indexPath.row]
         
         let delete = UIContextualAction(
             style: .destructive,
@@ -168,14 +181,39 @@ class TasksTableViewController: UITableViewController {
         return swipe
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return section == 0 ? "Not completed tasks" : "Completed tasks"
+    }
+    
     // MARK: - Table view delegate
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let tasks = tasks else {
-            return
+//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        let task = indexPath.section == 0
+//        ? notCompletedTasks[indexPath.row]
+//        : completedTasks[indexPath.row]
+//
+//        StorageManager.makeDone(task)
+//        loadTasks()
+//    }
+    
+    // MARK: Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if
+            let detailTaskVC = segue.destination as? DetailTaskViewController,
+            let indexPath = tableView.indexPathForSelectedRow
+        {
+            let task = indexPath.section == 0
+                ? notCompletedTasks[indexPath.row]
+                : completedTasks[indexPath.row]
+            detailTaskVC.task = task
+            detailTaskVC.delegate = self
         }
-        let task = tasks[indexPath.row]
-        StorageManager.makeDone(task)
-        tableView.reloadRows(at: [indexPath], with: .fade)
+    }
+}
+
+extension TasksTableViewController: UpdateTask {
+    func updateTask() {
+        tableView.reloadData()
     }
 }

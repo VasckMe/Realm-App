@@ -96,16 +96,26 @@ final class StorageManager {
         oldTask: Task,
         newTitle: String,
         newNote: String,
-        completion: (@escaping () -> Void)
+        completion: @escaping () -> Void
     ) {
         do {
-            try realm.write{
+            try realm.write {
                 oldTask.name = newTitle
                 oldTask.note = newNote
                 completion()
             }
         } catch {
             print("Edit task error - \(error)")
+        }
+    }
+    
+    static func completeTask(task: Task, isComplete: Bool) {
+        do {
+            try realm.write{
+                task.isComplete = isComplete
+            }
+        } catch {
+            print("Complete error - \(error)")
         }
     }
 }

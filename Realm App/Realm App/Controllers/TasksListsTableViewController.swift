@@ -32,12 +32,6 @@ class TasksListsTableViewController: UITableViewController {
         )
         navigationItem.setRightBarButtonItems([addButton, editButtonItem], animated: true)
         addTasksListsObserver()
-    }
-    
-    // MARK: - ViewWillAppear
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(false)
         segmentAction(segmentControlOutlet)
     }
     
@@ -94,6 +88,7 @@ class TasksListsTableViewController: UITableViewController {
     }
     
     // MARK: - IBActions
+    
     @IBAction private func segmentAction(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0 {
             tasksLists = StorageManager.getAllTasksLists().sorted(byKeyPath: "name")
@@ -163,7 +158,7 @@ class TasksListsTableViewController: UITableViewController {
         notificationToken = tasksLists.observe {[weak self] change in
             guard let self = self else { return }
             switch change {
-            case .initial(_):
+            case .initial:
                 print("Initial change")
             case .update(_, let deletions, let insertions, let modifications):
                 if !deletions.isEmpty {

@@ -18,7 +18,6 @@ class DetailTaskViewController: UIViewController {
     
     // MARK: - Properties
     
-    var delegate: UpdateTask?
     var task: Task?
     
     // MARK: - viewDidLoad
@@ -34,17 +33,13 @@ class DetailTaskViewController: UIViewController {
     // MARK: - IBActions
     
     @IBAction func completeSegmentAction() {
-        guard
-            let delegate = delegate,
-            let task = task
-        else {
+        guard let task = task else {
             return
         }
 
         let isComplete = completeSegmentControl.selectedSegmentIndex == 0
         StorageManager.completeTask(task: task, isComplete: isComplete)
         fillTaskData()
-        delegate.updateTask()
     }
     
     // MARK: - Private
@@ -59,10 +54,7 @@ class DetailTaskViewController: UIViewController {
     }
     
     @objc private func editTask() {
-        guard
-            let task = task,
-            let delegate = delegate
-        else {
+        guard let task = task else {
             return
         }
         
@@ -84,11 +76,8 @@ class DetailTaskViewController: UIViewController {
                 return
             }
             
-            StorageManager.editTask(oldTask: task, newTitle: nameText, newNote: noteText) {
-                
-            }
+            StorageManager.editTask(oldTask: task, newTitle: nameText, newNote: noteText)
             self?.fillTaskData()
-            delegate.updateTask()
         }
         
         alert.addTextField { textField in

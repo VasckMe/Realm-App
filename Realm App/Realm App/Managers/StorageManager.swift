@@ -87,17 +87,11 @@ final class StorageManager {
         }
     }
     
-    static func editTask(
-        oldTask: Task,
-        newTitle: String,
-        newNote: String,
-        completion: @escaping () -> Void
-    ) {
+    static func editTask(oldTask: Task, newTitle: String, newNote: String) {
         do {
             try realm.write {
                 oldTask.name = newTitle
                 oldTask.note = newNote
-                completion()
             }
         } catch {
             print("Edit task error - \(error)")

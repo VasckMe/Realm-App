@@ -8,18 +8,16 @@
 import UIKit
 import RealmSwift
 
-protocol UpdateTask {
-    func updateTask()
-}
-
 class TasksTableViewController: UITableViewController {
 
+    // MARK: - Properties
+    var notificationTokenForCompletedTasks: NotificationToken?
+    var notificationTokenForNotCompletedTasks: NotificationToken?
     var taskList: TasksList?
-    
     var notCompletedTasks: Results<Task>!
     var completedTasks: Results<Task>!
-    
-//    var tasks: Results<Task>!
+        
+    // MARK: - viewDidLoad
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,18 +29,17 @@ class TasksTableViewController: UITableViewController {
             action: #selector(alertAddOrEditTaskSelector)
         )
         navigationItem.setRightBarButtonItems([add, editButtonItem], animated: true)
+        addTasksObserver()
     }
     
     
     // MARK: - Private
     
     @objc private func alertAddOrEditTaskSelector() {
-        alertAddOrEditTask {
-            
-        }
+        alertAddOrEditTask()
     }
     
-    private func alertAddOrEditTask(task: Task? = nil, completion: (@escaping () -> Void)) {
+    private func alertAddOrEditTask(task: Task? = nil) {
         let title = task == nil ? "Add" : "Update"
         let message = "Write the task"
         let doneButton = task == nil ? "Add" : "Update"
@@ -66,18 +63,12 @@ class TasksTableViewController: UITableViewController {
                 return
             }
             if let task = task {
-                StorageManager.editTask(
-                    oldTask: task,
-                    newTitle: nameText,
-                    newNote: noteText,
-                    completion: completion
-                )
+                StorageManager.editTask(oldTask: task, newTitle: nameText, newNote: noteText)
             } else {
                 let task = Task()
                 task.name = nameText
                 task.note = noteText
                 StorageManager.saveTask(list: list, task: task)
-                self.loadTasks()
             }
         }
         
@@ -110,6 +101,49 @@ class TasksTableViewController: UITableViewController {
             completedTasks = list.tasks.filter("isComplete = true")
         }
         tableView.reloadData()
+    }
+    
+    private func addTasksObserver() {
+        notificationTokenForCompletedTasks = completedTasks.observe{[weak self] change in
+            self?.taskObserver(section: 1, change: change)
+        }
+        notificationTokenForNotCompletedTasks = notCompletedTasks.observe{[weak self] change in
+            self?.taskObserver(section: 0, change: change)
+        }
+    }
+    
+    private func taskObserver(section: Int, change: RealmCollectionChange<Results<Task>>) {
+        switch change {
+        case .initial:
+            print("Initial case")
+        case .update(_, let deletions, let insertions, let modifications):
+            if !modifications.isEmpty {
+                var indexPaths: [IndexPath] = []
+                for row in modifications {
+                    indexPaths.append(IndexPath(row: row, section: section))
+                }
+                loadTasks()
+            }
+            
+            if !deletions.isEmpty {
+                var indexPaths: [IndexPath] = []
+                for row in deletions {
+                    indexPaths.append(IndexPath(row: row, section: section))
+                }
+                loadTasks()
+            }
+            
+            if !insertions.isEmpty {
+                var indexPaths: [IndexPath] = []
+                for row in insertions {
+                    indexPaths.append(IndexPath(row: row, section: section))
+                }
+                loadTasks()
+            }
+            
+        case .error(let error):
+            print("Observer error - \(error)")
+        }
     }
     
     // MARK: - Table view data source
@@ -148,30 +182,26 @@ class TasksTableViewController: UITableViewController {
         let currentTask = indexPath.section == 0
         ? notCompletedTasks[indexPath.row]
         : completedTasks[indexPath.row]
-        
+        let doneButton = currentTask.isComplete ? "Not done" : "Done"
         let delete = UIContextualAction(
             style: .destructive,
             title: "Delete"
         ) { _, _, _ in
             StorageManager.removeTask(task: currentTask)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
         
         let edit = UIContextualAction(
             style: .destructive,
             title: "Edit"
         ) { _, _, _ in
-            self.alertAddOrEditTask(task: currentTask) {
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.alertAddOrEditTask(task: currentTask)
         }
         
         let done = UIContextualAction(
             style: .destructive,
-            title: "Done"
+            title: doneButton
         ) { _, _, _ in
             StorageManager.makeDone(currentTask)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
         
         done.backgroundColor = .green
@@ -185,17 +215,6 @@ class TasksTableViewController: UITableViewController {
         return section == 0 ? "Not completed tasks" : "Completed tasks"
     }
     
-    // MARK: - Table view delegate
-    
-//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let task = indexPath.section == 0
-//        ? notCompletedTasks[indexPath.row]
-//        : completedTasks[indexPath.row]
-//
-//        StorageManager.makeDone(task)
-//        loadTasks()
-//    }
-    
     // MARK: Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -207,13 +226,6 @@ class TasksTableViewController: UITableViewController {
                 ? notCompletedTasks[indexPath.row]
                 : completedTasks[indexPath.row]
             detailTaskVC.task = task
-            detailTaskVC.delegate = self
         }
-    }
-}
-
-extension TasksTableViewController: UpdateTask {
-    func updateTask() {
-        tableView.reloadData()
     }
 }

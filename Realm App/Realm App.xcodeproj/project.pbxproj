@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1807CDBE28D47CFD009A9F69 /* DetailTaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1807CDBD28D47CFD009A9F69 /* DetailTaskViewController.swift */; };
+		1807CDC028D494EE009A9F69 /* UITableViewCellExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1807CDBF28D494EE009A9F69 /* UITableViewCellExtension.swift */; };
 		184DC10928D07B51002C0021 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184DC10828D07B51002C0021 /* AppDelegate.swift */; };
 		184DC10B28D07B51002C0021 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184DC10A28D07B51002C0021 /* SceneDelegate.swift */; };
 		184DC11028D07B51002C0021 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 184DC10E28D07B51002C0021 /* Main.storyboard */; };
@@ -25,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		1807CDBD28D47CFD009A9F69 /* DetailTaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailTaskViewController.swift; sourceTree = "<group>"; };
+		1807CDBF28D494EE009A9F69 /* UITableViewCellExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCellExtension.swift; sourceTree = "<group>"; };
 		184DC10528D07B51002C0021 /* Realm App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Realm App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		184DC10828D07B51002C0021 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		184DC10A28D07B51002C0021 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -53,6 +55,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1807CDC128D494F1009A9F69 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				1807CDBF28D494EE009A9F69 /* UITableViewCellExtension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		184DC0FC28D07B51002C0021 = {
 			isa = PBXGroup;
 			children = (
@@ -72,6 +82,7 @@
 		184DC10728D07B51002C0021 /* Realm App */ = {
 			isa = PBXGroup;
 			children = (
+				1807CDC128D494F1009A9F69 /* Extensions */,
 				184DC12328D07B85002C0021 /* Managers */,
 				184DC12228D07B81002C0021 /* Models */,
 				184DC12028D07B69002C0021 /* Controllers */,
@@ -214,6 +225,7 @@
 				184DC12C28D08AAF002C0021 /* TasksTableViewController.swift in Sources */,
 				184DC10B28D07B51002C0021 /* SceneDelegate.swift in Sources */,
 				184DC12A28D08AA1002C0021 /* TasksListsTableViewController.swift in Sources */,
+				1807CDC028D494EE009A9F69 /* UITableViewCellExtension.swift in Sources */,
 				184DC13028D0E129002C0021 /* Task.swift in Sources */,
 				184DC11328D07B51002C0021 /* Realm_App.xcdatamodeld in Sources */,
 			);

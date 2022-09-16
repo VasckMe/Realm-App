@@ -16,6 +16,7 @@ class TasksListsTableViewController: UITableViewController {
     
     // MARK: - Properties
     
+    var notificationToken: NotificationToken?
     var tasksLists: Results<TasksList>!
     
     // MARK: - viewDidLoad
@@ -30,6 +31,7 @@ class TasksListsTableViewController: UITableViewController {
             action: #selector(alertAddOrUpdateListSelector)
         )
         navigationItem.setRightBarButtonItems([addButton, editButtonItem], animated: true)
+        addTasksListsObserver()
     }
     
     // MARK: - ViewWillAppear
@@ -42,16 +44,10 @@ class TasksListsTableViewController: UITableViewController {
     // MARK: - Private
     
     @objc private func alertAddOrUpdateListSelector() {
-        alertAddOrUpdateList { [weak self] in
-            self?.navigationItem.title = "alertForAddAndUpdatesListTasks"
-            print("ListTasks")
-        }
+        alertAddOrUpdateList()
     }
     
-    private func alertAddOrUpdateList(
-        list: TasksList? = nil,
-        completion: (@escaping () -> Void)
-    ) {
+    private func alertAddOrUpdateList(list: TasksList? = nil) {
         let title = list == nil ? "Add list" : "Update list"
         let message = "Please write title"
         let doneButtonTitle = list == nil ? "Add" : "Update"
@@ -65,23 +61,21 @@ class TasksListsTableViewController: UITableViewController {
         var alertTextField: UITextField?
         
         let cancel = UIAlertAction(title: "Cancel", style: .destructive)
-        let action = UIAlertAction(title: doneButtonTitle, style: .default) { [weak self] _ in
+        let action = UIAlertAction(title: doneButtonTitle, style: .default) { _ in
             guard
                 let textField = alertTextField,
                 let text = textField.text,
-                !text.isEmpty,
-                let self = self
+                !text.isEmpty
             else {
                 return
             }
             
             if let list = list {
-                StorageManager.editTasksList(oldList: list, newTitle: text, completion: completion)
+                StorageManager.editTasksList(oldList: list, newTitle: text)
             } else {
                 let tasksList = TasksList()
                 tasksList.name = text
                 StorageManager.addNewTaskList(taskList: tasksList)
-                self.segmentAction(self.segmentControlOutlet)
             }
         }
         
@@ -120,15 +114,9 @@ class TasksListsTableViewController: UITableViewController {
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let list = tasksLists[indexPath.row]
-
-        let notDoneTasks = list.tasks.filter { task in
-            task.isComplete == false
-        }.count
         
-        cell.textLabel?.text = list.name
-        cell.accessoryType = notDoneTasks >= 1 ? .none : .checkmark
-        cell.detailTextLabel?.text = notDoneTasks >= 1 ? notDoneTasks.description : ""
+        let list = tasksLists[indexPath.row]
+        cell.configureList(list: list)
 
         return cell
     }
@@ -148,16 +136,13 @@ class TasksListsTableViewController: UITableViewController {
             title: "Delete"
         ) { _, _, _ in
             StorageManager.removeTasksList(tasksList: currentList)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
         
         let edit = UIContextualAction(
             style: .destructive,
             title: "Edit"
         ) { _, _, _ in
-            self.alertAddOrUpdateList(list: currentList) {
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.alertAddOrUpdateList(list: currentList)
         }
         
         let done = UIContextualAction(
@@ -165,7 +150,6 @@ class TasksListsTableViewController: UITableViewController {
             title: "Done"
         ) { _, _, _ in
             StorageManager.doneTasksList(tasksList: currentList)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
         
         done.backgroundColor = .green
@@ -173,6 +157,44 @@ class TasksListsTableViewController: UITableViewController {
         
         let swipe = UISwipeActionsConfiguration(actions: [delete, edit, done])
         return swipe
+    }
+    
+    private func addTasksListsObserver() {
+        notificationToken = tasksLists.observe {[weak self] change in
+            guard let self = self else { return }
+            switch change {
+            case .initial(_):
+                print("Initial change")
+            case .update(_, let deletions, let insertions, let modifications):
+                if !deletions.isEmpty {
+                    var indexPaths = [IndexPath]()
+                    for row in deletions {
+                        indexPaths.append(IndexPath(row: row, section: 0))
+                    }
+                    self.tableView.deleteRows(at: indexPaths, with: .fade)
+                    self.segmentAction(self.segmentControlOutlet)
+                }
+                if !insertions.isEmpty {
+                    var indexPaths = [IndexPath]()
+                    for row in insertions {
+                        indexPaths.append(IndexPath(row: row, section: 0))
+                    }
+                    self.tableView.insertRows(at: indexPaths, with: .fade)
+                    self.segmentAction(self.segmentControlOutlet)
+                }
+                if !modifications.isEmpty {
+                    var indexPaths = [IndexPath]()
+                    for row in insertions {
+                        indexPaths.append(IndexPath(row: row, section: 0))
+                    }
+                    self.tableView.reloadRows(at: indexPaths, with: .fade)
+                    self.segmentAction(self.segmentControlOutlet)
+                }
+                
+            case .error(let error):
+                print("error - \(error)")
+            }
+        }
     }
 
     // MARK: - Navigation
